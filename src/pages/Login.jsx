@@ -5,11 +5,11 @@ import { loginSchema } from '../utils/validators';
 import { useNavigate } from 'react-router-dom';
 import InputField from '../components/common/InputField';
 import RedirectInfo from '../components/common/RedirectInfoText';
-import { Button } from '@mui/material';
 import { useMutation } from '@tanstack/react-query';
 import { login } from '../services/auth';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/authSlice';
+import FormButton from '../components/common/FormButton';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -26,7 +26,11 @@ const LoginPage = () => {
     },
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     resolver: joiResolver(loginSchema),
   });
 
@@ -39,12 +43,13 @@ const LoginPage = () => {
   };
 
   return (
-    <FormBox title="Login" onSubmit={handleSubmit(onSubmit)}>
+    <FormBox title='Login' onSubmit={handleSubmit(onSubmit)}>
       <InputField
         label='Email'
         name='email'
         form={register}
         error={errors.email}
+        disabled={loginMutation.isPending}
         required
       />
       <InputField
@@ -53,24 +58,18 @@ const LoginPage = () => {
         type='password'
         form={register}
         error={errors.password}
+        disabled={loginMutation.isPending}
         required
       />
-      <Button
-        type='submit'
-        variant='contained'
-        color='primary'
-        fullWidth
-        sx={{ mb: 2, height: 50 }}
-      >
-        Login
-      </Button>
+      <FormButton isLoading={loginMutation.isPending}>Login</FormButton>
       <RedirectInfo
         text="Don't have an account?"
-        redirectText="Register"
+        redirectText='Register'
         redirectHandler={redirectHandler}
+        disabled={loginMutation.isPending}
       />
     </FormBox>
   );
-}
- 
+};
+
 export default LoginPage;

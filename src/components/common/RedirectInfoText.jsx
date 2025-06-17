@@ -12,6 +12,7 @@ const RedirectInfo = ({
   redirectText,
   additionalStyles,
   redirectHandler,
+  disabled,
 }) => {
   return (
     <Typography
@@ -20,7 +21,7 @@ const RedirectInfo = ({
       variant="subtitle2"
     >
       {text}
-      <RedirectText onClick={redirectHandler}> {redirectText}</RedirectText>
+      <RedirectText onClick={disabled ? null : redirectHandler}> {redirectText}</RedirectText>
     </Typography>
   );
 };

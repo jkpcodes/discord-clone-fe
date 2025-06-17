@@ -25,6 +25,10 @@ const onFocusHandler = (event) => {
 };
 
 const FriendListItem = ({ friend, mode = 'online' }) => {
+
+  let firstBtnActionHandler;
+  let secondBtnActionHandler;
+
   const onListItemClick = () => {
   };
 
@@ -40,7 +44,7 @@ const FriendListItem = ({ friend, mode = 'online' }) => {
           variant='contained'
           color='primary'
           onFocus={onFocusHandler}
-          onClick={onActionClick}
+          onClick={firstBtnActionHandler}
         >
           <ChatIcon />
         </IconButton>
@@ -52,7 +56,7 @@ const FriendListItem = ({ friend, mode = 'online' }) => {
             variant='contained'
             color='success'
             onFocus={onFocusHandler}
-            onClick={onActionClick}
+            onClick={firstBtnActionHandler}
           >
             <CheckIcon />
           </IconButton>
@@ -61,7 +65,7 @@ const FriendListItem = ({ friend, mode = 'online' }) => {
           variant='contained'
           color='error'
           onFocus={onFocusHandler}
-          onClick={onActionClick}
+          onClick={secondBtnActionHandler}
         >
           <CloseIcon />
         </IconButton>

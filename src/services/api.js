@@ -1,5 +1,5 @@
 import axios from "axios";
-// import { setAlert } from "../store/alertSlice";
+import { setAlert } from "../store/alertSlice";
 import store from "../store";
 
 const apiClient = axios.create({
@@ -28,13 +28,13 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // store.dispatch(setAlert({
-    //   open: true,
-    //   message: error.response?.data?.message || error.message,
-    //   severity: "error",
-    //   vertical: "top",
-    //   horizontal: "center",
-    // }));
+    store.dispatch(setAlert({
+      open: true,
+      message: error.response?.data?.message || error.message,
+      severity: "error",
+      vertical: "top",
+      horizontal: "center",
+    }));
 
     if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.removeItem("userData");

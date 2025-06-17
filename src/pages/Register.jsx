@@ -1,5 +1,4 @@
 import FormBox from '../components/common/FormBox';
-import { TextField, Button, FormControl, FormHelperText } from '@mui/material';
 import { registerSchema } from '../utils/validators';
 import InputField from '../components/common/InputField';
 import { useForm } from 'react-hook-form';
@@ -10,6 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { register as registerUser } from '../services/auth';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/authSlice';
+import FormButton from '../components/common/FormButton';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ const RegisterPage = () => {
         name='email'
         form={register}
         error={errors.email}
+        disabled={registerMutation.isPending}
         required
       />
       <InputField
@@ -55,6 +56,7 @@ const RegisterPage = () => {
         name='username'
         form={register}
         error={errors.username}
+        disabled={registerMutation.isPending}
         required
       />
       <InputField
@@ -63,6 +65,7 @@ const RegisterPage = () => {
         type='password'
         form={register}
         error={errors.password}
+        disabled={registerMutation.isPending}
         required
       />
       <InputField
@@ -71,21 +74,15 @@ const RegisterPage = () => {
         label='Confirm Password'
         form={register}
         error={errors.confirmPassword}
+        disabled={registerMutation.isPending}
         required
       />
-      <Button
-        type='submit'
-        variant='contained'
-        color='primary'
-        fullWidth
-        sx={{ mb: 2, height: 50 }}
-      >
-        Register
-      </Button>
+      <FormButton isLoading={registerMutation.isPending}>Register</FormButton>
       <RedirectInfo
-        text="Already have an account?"
-        redirectText="Login"
+        text='Already have an account?'
+        redirectText='Login'
         redirectHandler={redirectHandler}
+        disabled={registerMutation.isPending}
       />
     </FormBox>
   );
