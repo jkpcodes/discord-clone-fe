@@ -1,7 +1,6 @@
 import {
   Box,
   AppBar,
-  styled,
   IconButton,
   Tooltip,
   Menu,
@@ -12,6 +11,8 @@ import AppAvatar from '../common/AppAvatar';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../store/authSlice';
+import { disconnectSocket } from '../../services/socket';
+import { styled } from '@mui/material/styles';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   height: 48,
@@ -39,6 +40,7 @@ const AppHeader = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    disconnectSocket();
   };
 
   return (

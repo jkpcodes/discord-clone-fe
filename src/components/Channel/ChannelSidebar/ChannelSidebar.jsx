@@ -1,37 +1,39 @@
-import { Drawer, Typography } from '@mui/material';
-import { styled, useTheme } from '@mui/material/styles';
-import ServerAvatar from './ServerAvatar';
+import { Drawer, List, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
-  width: 72,
+  width: 248,
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  flexShrink: 0,
+  flexGrow: 1,
   boxSizing: 'border-box',
 
   '& > .MuiDrawer-paper': {
-    width: 72,
+    width: 248,
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    flexShrink: 0,
+    flexGrow: 1,
+    alignItems: 'center',
+    left: 72,
+    paddingTop: 12,
     position: 'absolute',
     overflowX: 'hidden',
     overflowY: 'auto',
     boxSizing: 'border-box',
-    alignItems: 'center',
   }
 }));
 
-const ServerSidebar = () => {
-  const theme = useTheme();
-
+const ChannelSidebar = () => {
   return (
     <StyledDrawer variant="permanent" anchor="left">
-      <ServerAvatar _id="1" name="Direct Messages" color={theme.palette.primary.main} />
+      <Typography variant="h6">Direct Messages</Typography>
+      <List>
+        
+      </List>
     </StyledDrawer>
   );
 }
  
-export default ServerSidebar;
+export default ChannelSidebar;

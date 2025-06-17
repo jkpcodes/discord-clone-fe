@@ -1,4 +1,13 @@
-import { Avatar } from '@mui/material';
+import { Avatar, Typography, Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+
+const AvatarContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 12,
+}));
 
 function stringToColor(_id) {
   let hash = 0;
@@ -26,6 +35,7 @@ function stringAvatar(_id, variant, size, cursor, color) {
       height: size,
       cursor: cursor,
       borderRadius: variant === 'square' ? 2 : 100,
+      color: 'white',
     },
   };
 }
@@ -38,16 +48,23 @@ const AppAvatar = ({
   variant = 'circular',
   color = null,
   icon = null,
+  showName = false,
 }) => {
-    return (
-      <Avatar {...stringAvatar(_id, variant, size, cursor, color)}>
-        {icon ? icon : `${name[0].toUpperCase()}`}
-      </Avatar>
-    );
+  // Add fallback for when name is undefined
+  const avatarContent = icon || (name ? name[0].toUpperCase() : '?');
 
-  // return (
-  //   <Avatar {...stringAvatar(_id, name, size, cursor)} variant={variant} />
-  // );
+  return (
+    <AvatarContainer>
+      <Avatar {...stringAvatar(_id, variant, size, cursor, color)}>
+        {avatarContent}
+      </Avatar>
+      {showName && (
+        <Typography variant='body1' sx={{ fontSize: 18 }}>
+          {name}
+        </Typography>
+      )}
+    </AvatarContainer>
+  );
 };
 
 export default AppAvatar;

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { disconnectSocket } from '../services/socket';
 
 const userDetailsString = localStorage.getItem('userDetails');
 let userDetails = userDetailsString ? JSON.parse(userDetailsString) : null;
@@ -22,7 +23,7 @@ const authSlice = createSlice({
       state.userDetails = null;
       state.isLoggedIn = false;
       localStorage.removeItem('userDetails');
-      // disconnectSocket(); // Disconnect socket on logout
+      disconnectSocket(); // Disconnect socket on logout
     },
   },
 });

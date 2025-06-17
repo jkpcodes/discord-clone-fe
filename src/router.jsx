@@ -47,7 +47,16 @@ const router = createBrowserRouter([
         children: [
           {
             path: '/channel/me',
-            element: <MePage />,
+            children: [
+              {
+                index: true,
+                element: <MePage />,
+              },
+              {
+                path: '/channel/me/:id',
+                element: <MePage />,
+              },
+            ],
           },
           {
             path: '/channel/:id',

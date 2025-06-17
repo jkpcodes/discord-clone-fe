@@ -2,8 +2,9 @@ import { Outlet } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import AppHeader from '../../components/AppHeader/AppHeader';
-import ServerSidebar from '../../components/ServerSidebar/ServerSidebar';
-import ChannelSidebar from '../../components/ChannelSidebar/ChannelSidebar';
+import ServerSidebar from '../../components/Server/ServerSidebar/ServerSidebar';
+import ChannelSidebar from '../../components/Channel/ChannelSidebar/ChannelSidebar';
+import Socket from '../../components/utils/Socket';
 
 const ChannelPageContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -28,26 +29,17 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
   padding: 0,
 }));
 
-const ChannelContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  flexGrow: 1,
-  margin: 0,
-  padding: 0,
-}));
-
 const ChannelPage = () => {
   return (
     <>
+      <Socket />
       <AppHeader />
       <ChannelPageContainer>
         <SidebarContainer>
           <ServerSidebar />
           <ChannelSidebar />
         </SidebarContainer>
-        <ChannelContainer>
-          <Outlet />
-        </ChannelContainer>
+        <Outlet />
       </ChannelPageContainer>
     </>
   );

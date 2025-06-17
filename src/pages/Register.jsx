@@ -7,9 +7,24 @@ import { joiResolver } from '@hookform/resolvers/joi';
 import RedirectInfo from '../components/common/RedirectInfoText';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { register as registerUser } from '../services/auth';
+import { useDispatch } from 'react-redux';
+import { setUserDetails } from '../store/authSlice';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const registerMutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      dispatch(setUserDetails(data.userDetails));
+      navigate('/channel/me', { replace: true, state: null });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
   const {
     register,
     handleSubmit,
@@ -19,7 +34,7 @@ const RegisterPage = () => {
   });
 
   const onSubmit = (data) => {
-    console.log(data);
+    registerMutation.mutate(data);
   };
 
   const redirectHandler = () => {
