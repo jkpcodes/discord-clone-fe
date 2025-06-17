@@ -4,11 +4,19 @@ import { clearAlert } from "../../store/alertSlice";
 import { styled } from "@mui/material/styles";
 
 const StyledSnackbar = styled(Snackbar)({
-  "& .MuiPaper-root.MuiAlert-standardError": {
-    backgroundColor: "#7e1a1a",
+  "& .MuiPaper-root": {
+    '&.MuiAlert-standardError': {
+      backgroundColor: "#7e1a1a",
 
-    "& .MuiAlert-icon": {
-      color: "#f4c7c7",
+      "& .MuiAlert-icon": {
+        color: "#f4c7c7",
+      }
+    },
+    '&.MuiAlert-standardSuccess': {
+      backgroundColor: "#1a7e1a",
+      "& .MuiAlert-icon": {
+        color: "#c7f4c7",
+      }
     }
   },
 });

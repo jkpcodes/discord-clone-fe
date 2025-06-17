@@ -18,7 +18,7 @@ const passwordValidation = Joi.string()
     'string.empty': 'Password is required',
   });
 
-const emailValidation = Joi.string()
+export const emailValidation = Joi.string()
   .trim()
   .pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
   .required()

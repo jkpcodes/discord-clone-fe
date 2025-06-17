@@ -1,6 +1,6 @@
 import ChannelLayout from '../../components/common/ChannelLayout';
-import FriendSubTab from '../../components/Channel/FriendSubTab';
-import FriendsList from '../../components/Channel/FriendsList';
+import FriendSubTab from '../../components/Channel/Friends/FriendSubTab';
+import FriendsList from '../../components/Channel/Friends/FriendsList';
 import { Box } from '@mui/material';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';

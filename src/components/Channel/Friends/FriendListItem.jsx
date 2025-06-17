@@ -1,6 +1,6 @@
-import { ListItemButton, Box, IconButton } from '@mui/material';
+import { ListItemButton, Box, IconButton, Tooltip } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import AppAvatar from '../common/AppAvatar';
+import AppAvatar from '../../common/AppAvatar';
 import ChatIcon from '@mui/icons-material/Chat';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,12 +25,10 @@ const onFocusHandler = (event) => {
 };
 
 const FriendListItem = ({ friend, mode = 'online' }) => {
-
   let firstBtnActionHandler;
   let secondBtnActionHandler;
 
-  const onListItemClick = () => {
-  };
+  const onListItemClick = () => {};
 
   const onActionClick = (event) => {
     event.stopPropagation();
@@ -40,35 +38,41 @@ const FriendListItem = ({ friend, mode = 'online' }) => {
   let actions =
     mode === 'online' || mode === 'all' ? (
       <>
-        <IconButton
-          variant='contained'
-          color='primary'
-          onFocus={onFocusHandler}
-          onClick={firstBtnActionHandler}
-        >
-          <ChatIcon />
-        </IconButton>
+        <Tooltip title='Message'>
+          <IconButton
+            variant='contained'
+            color='primary'
+            onFocus={onFocusHandler}
+            onClick={firstBtnActionHandler}
+          >
+            <ChatIcon />
+          </IconButton>
+        </Tooltip>
       </>
     ) : (
       <>
         {mode === 'pending' && (
+          <Tooltip title='Accept invitation'>
+            <IconButton
+              variant='contained'
+              color='success'
+              onFocus={onFocusHandler}
+              onClick={firstBtnActionHandler}
+            >
+              <CheckIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title={mode === 'pending' ? 'Reject invitation' : 'Cancel invitation'}>
           <IconButton
             variant='contained'
-            color='success'
+            color='error'
             onFocus={onFocusHandler}
-            onClick={firstBtnActionHandler}
+            onClick={secondBtnActionHandler}
           >
-            <CheckIcon />
+            <CloseIcon />
           </IconButton>
-        )}
-        <IconButton
-          variant='contained'
-          color='error'
-          onFocus={onFocusHandler}
-          onClick={secondBtnActionHandler}
-        >
-          <CloseIcon />
-        </IconButton>
+        </Tooltip>
       </>
     );
   return (
