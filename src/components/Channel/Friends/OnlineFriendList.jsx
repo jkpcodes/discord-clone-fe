@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { Tooltip, IconButton } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import FriendListItem from './FriendListItem';
+import { useNavigate } from 'react-router-dom';
 
 const StyledList = styled(List)(({ theme }) => ({
   display: 'flex',
@@ -25,6 +26,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
  * @returns
  */
 const OnlineFriendsList = ({ mode = 'online' }) => {
+  const navigate = useNavigate();
   const { friends, onlineFriends } =
     useSelector((state) => state.friend);
 
@@ -39,13 +41,9 @@ const OnlineFriendsList = ({ mode = 'online' }) => {
     friendList = friends;
   }
 
-  const actions = (
-    <Tooltip title='Message'>
-      <IconButton variant='contained' color='white'>
-        <ChatIcon />
-      </IconButton>
-    </Tooltip>
-  );
+  const handleChat = (friendId) => {
+    navigate(`/channel/me/${friendId}`);
+  };
 
   return (
     <StyledList>
@@ -59,7 +57,14 @@ const OnlineFriendsList = ({ mode = 'online' }) => {
           key={friend._id}
           friend={friend}
           mode={mode}
-          actions={actions}
+          onListItemClick={() => handleChat(friend._id)}
+          actions={(
+            <Tooltip title='Message'>
+              <IconButton variant='contained' color='white' onClick={() => handleChat(friend._id)}>
+                <ChatIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         />
       ))}
     </StyledList>

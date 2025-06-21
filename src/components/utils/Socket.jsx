@@ -10,7 +10,7 @@ const Socket = () => {
     if (isLoggedIn && connectionStatus === 'disconnected' && userDetails.token) {
       connectToSocket(userDetails.token);
     }
-  }, [isLoggedIn, userDetails, connectionStatus]);
+  }, [isLoggedIn, userDetails?.token, connectionStatus]);
 
   return null;
 }

@@ -7,6 +7,7 @@ import RegisterPage from './pages/Register';
 import ChannelPage from './pages/Channel/Channel';
 import MePage from './pages/Channel/Me';
 import ServerPage from './pages/Channel/Server';
+import ChatPage from './pages/Channel/Chat';
 
 const router = createBrowserRouter([
   {
@@ -54,7 +55,7 @@ const router = createBrowserRouter([
               },
               {
                 path: '/channel/me/:id',
-                element: <MePage />,
+                element: <ChatPage />,
               },
             ],
           },

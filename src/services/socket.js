@@ -8,6 +8,8 @@ import {
   setPendingInvitations,
   setSentInvitations,
 } from '../store/friendSlice';
+import { logout } from '../store/authSlice';
+import { addMessageToChat } from '../store/chatSlice';
 
 let socket = null;
 export const getSocket = () => socket;
@@ -48,6 +50,10 @@ export const connectToSocket = (token) => {
 
   socket.on('connect_error', (error) => {
     console.error('Socket connection error:', error.message);
+    if (error.message === 'Authentication error') {
+      handleAuthError();
+      return;
+    }
     store.dispatch(setConnectionStatus('disconnected'));
   });
 
@@ -63,6 +69,10 @@ export const connectToSocket = (token) => {
 
   socket.on('reconnect_error', (error) => {
     console.error('Reconnection error:', error);
+    if (error.message === 'Authentication error') {
+      handleAuthError();
+      return;
+    }
     store.dispatch(setConnectionStatus('disconnected'));
   });
 
@@ -104,6 +114,11 @@ export const connectToSocket = (token) => {
     console.log('Online friend ID', friendID);
     store.dispatch(addOnlineFriendId(friendID));
   });
+
+  socket.on('chat:addedMessage', (data) => {
+    console.log('chat:addedMessage: ', data);
+    store.dispatch(addMessageToChat(data));
+  });
 };
 
 export const disconnectSocket = () => {
@@ -118,3 +133,10 @@ export const disconnectSocket = () => {
     }, 0);
   }
 };
+
+const handleAuthError = () => {
+  disconnectSocket();
+  // Logout the user
+  store.dispatch(setConnectionStatus('disconnected'));
+  store.dispatch(logout());
+}
