@@ -8,8 +8,9 @@ import {
   setPendingInvitations,
   setSentInvitations,
 } from '../store/friendSlice';
-import { logout } from '../store/authSlice';
 import { addMessageToChat } from '../store/chatSlice';
+import { updateVoiceChannelParticipants } from '../store/serverSlice';
+import { logoutHandler } from './auth';
 
 let socket = null;
 export const getSocket = () => socket;
@@ -119,6 +120,10 @@ export const connectToSocket = (token) => {
     console.log('chat:addedMessage: ', data);
     store.dispatch(addMessageToChat(data));
   });
+
+  socket.on('call:updateVoiceChannelParticipants', (data) => {
+    store.dispatch(updateVoiceChannelParticipants(data));
+  });
 };
 
 export const disconnectSocket = () => {
@@ -138,5 +143,13 @@ const handleAuthError = () => {
   disconnectSocket();
   // Logout the user
   store.dispatch(setConnectionStatus('disconnected'));
-  store.dispatch(logout());
+  logoutHandler();
+}
+
+export const joinServerVoiceChannel = (serverId) => {
+  socket.emit('call:joinServerVoiceChannel', serverId);
+}
+
+export const leaveServerVoiceChannel = (serverId) => {
+  socket.emit('call:leaveServerVoiceChannel', serverId);
 }

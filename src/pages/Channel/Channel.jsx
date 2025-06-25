@@ -5,6 +5,10 @@ import AppHeader from '../../components/AppHeader/AppHeader';
 import ServerSidebar from '../../components/Server/ServerSidebar/ServerSidebar';
 import ChannelSidebar from '../../components/Channel/ChannelSidebar/ChannelSidebar';
 import Socket from '../../components/utils/Socket';
+import CallWindow from '../../components/Call/CallWindow';
+import { useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const ChannelPageContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -30,6 +34,16 @@ const SidebarContainer = styled(Box)(({ theme }) => ({
 }));
 
 const ChannelPage = () => {
+  const isUserInCall = useSelector((state) => state.call.isUserInCall);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (location.pathname === '/channel') {
+      navigate('/channel/me', { replace: true });
+    }
+  }, [location.pathname, navigate]);
+
   return (
     <>
       <Socket />
@@ -41,6 +55,7 @@ const ChannelPage = () => {
         </SidebarContainer>
         <Outlet />
       </ChannelPageContainer>
+      {isUserInCall && <CallWindow />}
     </>
   );
 };

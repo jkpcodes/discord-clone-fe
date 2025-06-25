@@ -3,21 +3,10 @@ import { styled, useTheme } from '@mui/material/styles';
 import ServerAvatar from './ServerAvatar';
 import PersonIcon from '@mui/icons-material/Person';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-const DUMMY_SERVERS = [
-  {
-    _id: '65f1a2b3c4d5e6f7a8b9c0d1',
-    name: 'Sample Server 1',
-  },
-  {
-    _id: '75e2b3c4d5e6f7a8b9c0d2e3',
-    name: 'Random Server 2',
-  },
-  {
-    _id: '85d3c4d5e6f7a8b9c0d2e3f4',
-    name: 'Hello Server 3',
-  },
-];
+import AddIcon from '@mui/icons-material/Add';
+import CreateServerDialog from './CreateServerDialog';
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
   width: 72,
@@ -42,6 +31,8 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
 }));
 
 const ServerSidebar = () => {
+  const [createServerDialogOpen, setCreateServerDialogOpen] = useState(false);
+  const { servers } = useSelector((state) => state.server);
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
@@ -52,33 +43,56 @@ const ServerSidebar = () => {
     navigate(`/channel/${serverId}`, { replace: true });
   };
 
+  const handleCreateServerDialogOpen = () => {
+    setCreateServerDialogOpen(true);
+  };
+
+  const handleCreateServerDialogClose = () => {
+    setCreateServerDialogOpen(false);
+  };
+
   return (
-    <StyledDrawer variant='permanent' anchor='left'>
-      <List sx={{ paddingBottom: 0 }}>
-        {/* Direct Messages */}
-        <ServerAvatar
-          _id='me'
-          name='Direct Messages'
-          color={theme.palette.primary.main}
-          icon={<PersonIcon />}
-          isSelected={currentServerId === 'me'}
-          onClick={() => handleServerClick('me')}
-        />
-        <Divider />
-      </List>
-      <List sx={{ paddingTop: 0 }}>
-        {/* Servers */}
-        {DUMMY_SERVERS.map((server) => (
+    <>
+      <StyledDrawer variant='permanent' anchor='left'>
+        <List sx={{ paddingBottom: 0 }}>
+          {/* Direct Messages */}
           <ServerAvatar
-            key={server._id}
-            _id={server._id}
-            name={server.name}
-            isSelected={currentServerId === server._id}
-            onClick={() => handleServerClick(server._id)}
+            _id='me'
+            name='Direct Messages'
+            color={theme.palette.primary.main}
+            icon={<PersonIcon />}
+            isSelected={currentServerId === 'me'}
+            onClick={() => handleServerClick('me')}
           />
-        ))}
-      </List>
-    </StyledDrawer>
+          <Divider />
+        </List>
+        <List sx={{ padding: 0 }}>
+          <ServerAvatar
+            _id='create-server'
+            name='Create Server'
+            color='#2f3136'
+            icon={<AddIcon />}
+            onClick={handleCreateServerDialogOpen}
+          />
+        </List>
+        <List sx={{ paddingTop: 0 }}>
+          {/* Servers */}
+          {servers.map((server) => (
+            <ServerAvatar
+              key={server._id}
+              _id={server._id}
+              name={server.name}
+              isSelected={currentServerId === server._id}
+              onClick={() => handleServerClick(server._id)}
+            />
+          ))}
+        </List>
+      </StyledDrawer>
+      <CreateServerDialog
+        open={createServerDialogOpen}
+        onClose={handleCreateServerDialogClose}
+      />
+    </>
   );
 };
 

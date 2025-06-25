@@ -1,8 +1,10 @@
+import ChannelLayout from '../../components/common/ChannelLayout';
+
 const ServerPage = () => {
   return (
-    <div>
+    <ChannelLayout>
       <h1>/server Content Here!</h1>
-    </div>
+    </ChannelLayout>
   );
 };
 

@@ -10,8 +10,7 @@ import {
 import AppAvatar from '../common/AppAvatar';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../../store/authSlice';
-import { disconnectSocket } from '../../services/socket';
+import { logoutHandler } from '../../services/auth';
 import { styled } from '@mui/material/styles';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -39,8 +38,7 @@ const AppHeader = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
-    disconnectSocket();
+    logoutHandler();
   };
 
   return (

@@ -53,8 +53,8 @@ const ChatMessage = ({ message, sameAuthor, isSameDay, formattedTime }) => {
         </ListItemAvatar>
       )}
       <ListItemText
-        sx={{ paddingLeft: sameAuthor ? '56px' : '0px' }}
-        primary={sameAuthor ? null : ItemPrimaryText}
+        sx={{ paddingLeft: sameAuthor && isSameDay ? '56px' : '0px' }}
+        primary={sameAuthor && isSameDay ? null : ItemPrimaryText}
         secondary={message.content}
       >
         <StyledDateSecondaryTypography className="StyledDateSecondaryTypography">

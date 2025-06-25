@@ -80,12 +80,20 @@ const chatSlice = createSlice({
           pagination: action.payload.pagination,
         },
       };
-      
+    },
+    resetChatState: (state) => {
+      state.directChat = {};
+      state.serverChat = {};
     },
   },
 });
 
-export const { setFriendChat, addMessageToChat, loadMoreMessages } = chatSlice.actions;
+export const {
+  setFriendChat,
+  addMessageToChat,
+  loadMoreMessages,
+  resetChatState,
+} = chatSlice.actions;
 export default chatSlice.reducer;
 
 export const generateChatKey = (userId, friendId) => {

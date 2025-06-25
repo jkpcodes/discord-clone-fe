@@ -1,5 +1,7 @@
 import { Drawer, List, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useLocation } from 'react-router-dom';
+import VoiceChannel from './VoiceChannel';
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
   width: 248,
@@ -26,12 +28,25 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
 }));
 
 const ChannelSidebar = () => {
+  const location = useLocation();
+  const isServerPage = !location.pathname.includes('/channel/me');
+
   return (
     <StyledDrawer variant="permanent" anchor="left">
-      <Typography variant="h6">Direct Messages</Typography>
-      <List>
-        
-      </List>
+      {/* TODO: if in Me page, display conversation list */}
+      {!isServerPage && (
+        <>
+          <Typography variant="h6">Direct Messages</Typography>
+          <List>
+            
+          </List>
+        </>
+      )}
+
+      {/* TODO: if in Server page, display server voice channel and current users in voice channel */}
+      {isServerPage && (
+        <VoiceChannel />
+      )}
     </StyledDrawer>
   );
 }

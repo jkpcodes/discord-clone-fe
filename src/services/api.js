@@ -1,6 +1,7 @@
 import axios from "axios";
 import { setAlert } from "../store/alertSlice";
 import store from "../store";
+import { logoutHandler } from "./auth";
 
 const apiClient = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -37,8 +38,7 @@ apiClient.interceptors.response.use(
     }));
 
     if (error.response?.status === 401 || error.response?.status === 403) {
-      localStorage.removeItem("userData");
-      window.dispatchEvent(new CustomEvent("unauthorized"));
+      logoutHandler();
     }
     return Promise.reject(error);
   }
