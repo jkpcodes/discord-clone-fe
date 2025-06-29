@@ -32,7 +32,7 @@ export const connectToSocket = (token) => {
     return;
   }
 
-  socket = io('http://localhost:3000', {
+  socket = io(import.meta.env.VITE_SOCKET_BASE_URL, {
     auth: {
       token,
       instanceId,
