@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import CallWindowActions from './CallWindowActions';
 import UserCallDisplay from './UserCallDisplay';
 import { getLocalStream } from '../../services/webRTC';
+import { useSelector } from 'react-redux';
 
 const CallLayoutContainer = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -46,19 +47,25 @@ const MiniScreenStyle = {
 
 const CallWindow = () => {
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const { remoteStreams } = useSelector((state) => state.call);
   const localStream = getLocalStream();
 
   const resizeScreenHandler = () => {
     setIsFullScreen((prev) => !prev);
   };
 
-  return createPortal( 
+  return createPortal(
     <CallLayoutContainer sx={isFullScreen ? FullScreenStyle : MiniScreenStyle}>
-      {/* Todo: Call Action Buttons */}
       <UserCallStreamContainer>
         <UserCallDisplay stream={localStream} isLocalStream={true} />
+        {remoteStreams.map((stream) => (
+          <UserCallDisplay key={stream.id} stream={stream} />
+        ))}
       </UserCallStreamContainer>
-      <CallWindowActions isFullScreen={isFullScreen} handleScreenSize={resizeScreenHandler} />
+      <CallWindowActions
+        isFullScreen={isFullScreen}
+        handleScreenSize={resizeScreenHandler}
+      />
     </CallLayoutContainer>,
     document.getElementById('call-window')
   );

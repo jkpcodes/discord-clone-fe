@@ -13,10 +13,13 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { leaveServerVoiceChannel } from '../../services/socket';
-import { setMicrophoneState, setCameraState, stopLocalStream } from '../../services/webRTC';
-
 import {
-  setIsUserInCall,
+  setMicrophoneState,
+  setCameraState,
+  stopLocalStream,
+  closeAllWebRTCConnections,
+} from '../../services/webRTC';
+import {
   setIsCameraOn,
   setIsScreenShareOn,
   setIsMicrophoneOn,
@@ -67,6 +70,7 @@ const CallWindowActions = ({ isFullScreen, handleScreenSize }) => {
     dispatch(exitUserFromAllVoiceChannels(userDetails._id));
     leaveServerVoiceChannel(id);
     stopLocalStream();
+    closeAllWebRTCConnections();
   };
 
   return (
@@ -89,17 +93,21 @@ const CallWindowActions = ({ isFullScreen, handleScreenSize }) => {
           placement='top'
         >
           <IconButton onClick={handleCamera}>
-            {isCameraOn ? <VideocamIcon color='success' /> : <VideocamOffIcon color='error' />}
+            {isCameraOn ? (
+              <VideocamIcon color='success' />
+            ) : (
+              <VideocamOffIcon color='error' />
+            )}
           </IconButton>
         </Tooltip>
-        <Tooltip
+        {/* <Tooltip
           title={isScreenShareOn ? 'Stop Screen Share' : 'Start Screen Share'}
           placement='top'
         >
           <IconButton onClick={handleScreenShare}>
             {isScreenShareOn ? <StopScreenShareIcon /> : <ScreenShareIcon />}
           </IconButton>
-        </Tooltip>
+        </Tooltip> */}
         <Tooltip title='End Call' placement='top'>
           <IconButton onClick={handleEndCall}>
             <CallEndIcon color='error' />

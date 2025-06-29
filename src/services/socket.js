@@ -11,6 +11,7 @@ import {
 import { addMessageToChat } from '../store/chatSlice';
 import { updateVoiceChannelParticipants } from '../store/serverSlice';
 import { logoutHandler } from './auth';
+import { handleSignalPeerData, prepareNewWebRTCConnection, closeWebRTCConnection } from './webRTC';
 
 let socket = null;
 export const getSocket = () => socket;
@@ -59,17 +60,14 @@ export const connectToSocket = (token) => {
   });
 
   socket.on('reconnect_attempt', (attemptNumber) => {
-    console.log(`Attempting to reconnect (${attemptNumber})`);
     store.dispatch(setConnectionStatus('connecting'));
   });
 
   socket.on('reconnect', (attemptNumber) => {
-    console.log(`Reconnected after ${attemptNumber} attempts`);
     store.dispatch(setConnectionStatus('connected'));
   });
 
   socket.on('reconnect_error', (error) => {
-    console.error('Reconnection error:', error);
     if (error.message === 'Authentication error') {
       handleAuthError();
       return;
@@ -78,30 +76,26 @@ export const connectToSocket = (token) => {
   });
 
   socket.on('reconnect_failed', () => {
-    console.error('Failed to reconnect');
     store.dispatch(setConnectionStatus('disconnected'));
   });
 
   socket.on('disconnect', () => {
-    console.log('Disconnected from socket');
+    console.error('Disconnected from socket');
     store.dispatch(setConnectionStatus('disconnected'));
   });
 
   socket.on('friend:invitations', (data) => {
     const pendingInvitations = data;
-    console.log('Pending invitations', pendingInvitations);
     store.dispatch(setPendingInvitations(pendingInvitations));
   });
 
   socket.on('friend:sentInvitations', (data) => {
     const sentInvitations = data;
-    console.log('Sent invitations', sentInvitations);
     store.dispatch(setSentInvitations(sentInvitations));
   });
 
   socket.on('friend:friendsList', (data) => {
     const friends = data;
-    console.log('Friends list', friends);
     store.dispatch(setFriends(friends));
   });
 
@@ -112,17 +106,35 @@ export const connectToSocket = (token) => {
 
   socket.on('friend:onlineFriendID', (data) => {
     const friendID = data;
-    console.log('Online friend ID', friendID);
     store.dispatch(addOnlineFriendId(friendID));
   });
 
   socket.on('chat:addedMessage', (data) => {
-    console.log('chat:addedMessage: ', data);
     store.dispatch(addMessageToChat(data));
   });
 
   socket.on('call:updateVoiceChannelParticipants', (data) => {
     store.dispatch(updateVoiceChannelParticipants(data));
+  });
+
+  socket.on('call:prepareWebRTCConnection', (data) => {
+    prepareNewWebRTCConnection(data.userSocketId, false);
+
+    socket.emit('call:initializeWebRTCConnection', {
+      userSocketId: data.userSocketId,
+    });
+  });
+
+  socket.on('call:initializeWebRTCConnection', (data) => {
+    prepareNewWebRTCConnection(data.userSocketId, true);
+  });
+
+  socket.on('call:signalPeerData', (data) => {
+    handleSignalPeerData(data);
+  });
+
+  socket.on('call:userLeftVoiceChannel', (data) => {
+    closeWebRTCConnection(data.userSocketId);
   });
 };
 
@@ -144,12 +156,16 @@ const handleAuthError = () => {
   // Logout the user
   store.dispatch(setConnectionStatus('disconnected'));
   logoutHandler();
-}
+};
 
 export const joinServerVoiceChannel = (serverId) => {
   socket.emit('call:joinServerVoiceChannel', serverId);
-}
+};
 
 export const leaveServerVoiceChannel = (serverId) => {
   socket.emit('call:leaveServerVoiceChannel', serverId);
-}
+};
+
+export const signalPeerData = (data) => {
+  socket.emit('call:signalPeerData', data);
+};

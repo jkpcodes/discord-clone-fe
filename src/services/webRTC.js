@@ -1,5 +1,23 @@
 import store from '../store';
-import { setDevices } from '../store/callSlice';
+import { addRemoteStream, setDevices, removeRemoteStream } from '../store/callSlice';
+import Peer from 'simple-peer';
+import { getSocket, signalPeerData } from './socket';
+
+const getConfig = () => {
+  const turnIceServers = null;
+
+  if (turnIceServers) {
+    // TODO use TURN server credentials (this step is needed if we want to be able to connect to users behind NAT)
+    // Note: use Metered (metered.ca) for TURN server
+  } else {
+    console.warn('Using only STUN servers');
+    return {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+      ],
+    }
+  }
+};
 
 const onlyAudioContraints = {
   audio: true,
@@ -12,6 +30,7 @@ const defaultContraints = {
 };
 
 let localStream = null;
+let peerConnections = {};
 
 export const getLocalStream = () => {
   return localStream;
@@ -86,7 +105,6 @@ export const setMicrophoneState = (isMicrophoneOn) => {
   audioTracks.forEach(track => {
     track.enabled = isMicrophoneOn;
   });
-  console.log(audioTracks);
 };
 
 /**
@@ -107,7 +125,6 @@ export const setCameraState = (isCameraOn) => {
   videoTracks.forEach(track => {
     track.enabled = isCameraOn;
   });
-  console.log(videoTracks);
 };
 
 /**
@@ -130,8 +147,6 @@ export const stopLocalStream = async () => {
       // Set stream to null
       localStream = null;
 
-      console.log('Local stream stopped');
-
       // Force browser to release devices by requesting and immediately stopping a dummy stream
       try {
         const dummyStream = await navigator.mediaDevices.getUserMedia({
@@ -143,8 +158,6 @@ export const stopLocalStream = async () => {
         dummyStream.getTracks().forEach(track => {
           track.stop();
         });
-
-        console.log('Devices released');
       } catch (dummyError) {
         // Ignore errors from dummy stream request
         console.log('Dummy stream cleanup completed');
@@ -154,4 +167,52 @@ export const stopLocalStream = async () => {
       console.error('Error stopping local stream:', error);
     }
   }
+};
+
+export const prepareNewWebRTCConnection = (userSocketId, isInitiator) => {
+  peerConnections[userSocketId] = new Peer({
+    initiator: isInitiator,
+    config: getConfig(),
+    stream: localStream,
+  });
+
+  peerConnections[userSocketId].on('signal', (data) => {
+    const signalData = {
+      signal: data,
+      userSocketId
+    };
+
+    signalPeerData(signalData);
+  });
+
+  peerConnections[userSocketId].on('stream', (remoteStream) => {
+    remoteStream.userSocketId = userSocketId;
+    store.dispatch(addRemoteStream(remoteStream));
+  });
+};
+
+export const handleSignalPeerData = (data) => {
+  const { signal, userSocketId } = data;
+
+  if (peerConnections[userSocketId]) {
+    peerConnections[userSocketId].signal(signal);
+  }
+};
+
+export const closeAllWebRTCConnections = () => {
+  Object.keys(peerConnections).forEach(userSocketId => {
+    peerConnections[userSocketId].destroy();
+  });
+  peerConnections = {};
+  // Close local stream
+  stopLocalStream();
+};
+
+export const closeWebRTCConnection = (userSocketId) => {
+  if (peerConnections[userSocketId]) {
+    peerConnections[userSocketId].destroy();
+    delete peerConnections[userSocketId];
+  }
+
+  store.dispatch(removeRemoteStream(userSocketId));
 };

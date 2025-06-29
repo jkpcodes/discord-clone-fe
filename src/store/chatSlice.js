@@ -13,7 +13,6 @@ const chatSlice = createSlice({
      * @param {*} action.payload { friendId, userId, _id (conversationId), messages, participants, pagination }
      */
     setFriendChat: (state, action) => {
-      console.log(action.payload);
       const chatKey = generateChatKey(
         action.payload.userId,
         action.payload.friendId

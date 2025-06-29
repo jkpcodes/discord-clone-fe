@@ -34,7 +34,6 @@ export const login = async ({email, password}) => {
 
 
 export const logoutHandler = () => {
-  console.log('logoutHandler');
   store.dispatch(logout());
   store.dispatch(resetCallState());
   store.dispatch(resetChatState());

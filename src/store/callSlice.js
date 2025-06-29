@@ -8,6 +8,7 @@ const initialState = {
   serverId: null, // Server ID of the server in the call (if connected to avoice channel)
   userId: null, // User ID of the user in the call (if direct call)
   localStream: null,
+  remoteStreams: [],
   audioInputDevices: [],
   audioOutputDevices: [],
   videoInputDevices: [],
@@ -20,19 +21,28 @@ const callSlice = createSlice({
   name: 'call',
   initialState,
   reducers: {
+    /**
+     * 
+     * @param {*} state
+     * @param {*} action.payload { isUserInCall, serverId }
+     */
     setIsUserInCall: (state, action) => {
-      state.isUserInCall = action.payload;
+      state.isUserInCall = action.payload.isUserInCall;
+      state.serverId = action.payload.serverId;
       state.isMicrophoneOn = true;
       state.isCameraOn = true;
+      state.remoteStreams = [];
     },
     endCall: (state) => {
       state.isUserInCall = false;
+      state.serverId = null;
       state.isCameraOn = false;
       state.isScreenShareOn = false;
       state.isMicrophoneOn = false;
       state.audioInputDevices = [];
       state.audioOutputDevices = [];
       state.videoInputDevices = [];
+      state.remoteStreams = [];
     },
     setIsCameraOn: (state, action) => {
       state.isCameraOn = action.payload;
@@ -57,6 +67,7 @@ const callSlice = createSlice({
       state.audioInputDevices = [];
       state.audioOutputDevices = [];
       state.videoInputDevices = [];
+      state.remoteStreams = [];
     },
     setDevices: (state, action) => {
       state.audioInputDevices = action.payload.audioInputDevices;
@@ -67,11 +78,20 @@ const callSlice = createSlice({
         state.videoInputDeviceId = action.payload.videoInputDevices[0].deviceId;
       }
       if (action.payload.audioOutputDevices.length > 0) {
-        state.audioOutputDeviceId = action.payload.audioOutputDevices[0].deviceId;
+        state.audioOutputDeviceId =
+          action.payload.audioOutputDevices[0].deviceId;
       }
       if (action.payload.audioInputDevices.length > 0) {
         state.audioInputDeviceId = action.payload.audioInputDevices[0].deviceId;
       }
+    },
+    addRemoteStream: (state, action) => {
+      state.remoteStreams.push(action.payload);
+    },
+    removeRemoteStream: (state, action) => {
+      state.remoteStreams = state.remoteStreams.filter(
+        (stream) => stream.userSocketId !== action.payload
+      );
     },
   },
 });
@@ -84,5 +104,7 @@ export const {
   setIsMicrophoneOn,
   resetCallState,
   setDevices,
+  addRemoteStream,
+  removeRemoteStream,
 } = callSlice.actions;
 export default callSlice.reducer;

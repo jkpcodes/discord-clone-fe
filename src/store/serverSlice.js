@@ -1,40 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const DUMMY_SERVER_DATA = [
-  {
-    _id: '65f1a2b3c4d5e6f7a8b9c0d1',
-    name: 'Sample Server 1',
-    voiceChannel: {
-      participants: [], // This array will contain user details of users in the server's voice channel {_id, username}
-    },
-  },
-  {
-    _id: '75e2b3c4d5e6f7a8b9c0d2e3',
-    name: 'Random Server 2',
-    voiceChannel: {
-      participants: [], // This array will contain user details of users in the server's voice channel
-    },
-  },
-  {
-    _id: '85d3c4d5e6f7a8b9c0d2e3f4',
-    name: 'Hello Server 3',
-    voiceChannel: [], // This array will contain user details of users in the server's voice channel,
-  },
-];
-
 const initialState = {
   /* Server object
     {
       _id,
       name,
-      serverCreator,
-      serverMembers[],
-      serverDetails,
-      voiceChannel,
-      localStream,
-      remoteStreams[],
-      screenSharingStream,
-      isScreenSharingActive
+      owner,
+      members[],
+      voiceChannel[], {_id, username, email, socketId}
     }
   */
   servers: [],

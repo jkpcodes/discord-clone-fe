@@ -30,7 +30,7 @@ const VoiceChannel = () => {
           participant: { _id: userDetails._id, username: userDetails.username },
         })
       );
-      dispatch(setIsUserInCall(true));
+      dispatch(setIsUserInCall({ isUserInCall: true, serverId: id }));
       joinServerVoiceChannel(id);
     });
   };
@@ -42,6 +42,7 @@ const VoiceChannel = () => {
           <ListItemButton
             sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
             onClick={handleJoinVoiceChannel}
+            disabled={server.voiceChannel.length >= 4}
           >
             <VolumeUpIcon />
             {server.voiceChannel ? (
