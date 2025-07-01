@@ -27,7 +27,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
  */
 const OnlineFriendsList = ({ mode = 'online' }) => {
   const navigate = useNavigate();
-  const { friends, onlineFriends } =
+  const { friends, onlineFriends, onlineFriendsId } =
     useSelector((state) => state.friend);
 
   let headerText;
@@ -58,6 +58,8 @@ const OnlineFriendsList = ({ mode = 'online' }) => {
           friend={friend}
           mode={mode}
           onListItemClick={() => handleChat(friend._id)}
+          showBadge={true}
+          isOnline={onlineFriendsId.includes(friend._id)}
           actions={(
             <Tooltip title='Message'>
               <IconButton variant='contained' color='white' onClick={() => handleChat(friend._id)}>
