@@ -1,8 +1,8 @@
-import { Box } from "@mui/material";
-import { styled } from "@mui/material/styles";
-import AppAvatar from "../../common/AppAvatar";
-import { useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import AppAvatar from '../../common/AppAvatar';
+import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -14,17 +14,27 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }));
 
 const FriendChatHeader = () => {
-  const location = useLocation();
-  const friendId = location.pathname.split('/')[3];
-  const { friends } = useSelector((state) => state.friend);
+  const { id: friendId } = useParams();
+  const { friends, onlineFriendsId } = useSelector((state) => state.friend);
   const friend = friends.find((friend) => friend._id === friendId);
+
+  const isOnline = onlineFriendsId.includes(friendId);
 
   return (
     <StyledBox>
-      {friend && <AppAvatar _id={friend._id} name={friend.username} size={40} showName />}
+      {friend && (
+        <AppAvatar
+          _id={friend._id}
+          name={friend.username}
+          size={40}
+          showName
+          showBadge
+          isOnline={isOnline}
+        />
+      )}
       {/* TODO: Add call and video call buttons */}
     </StyledBox>
   );
-}
- 
+};
+
 export default FriendChatHeader;

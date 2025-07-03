@@ -1,22 +1,39 @@
 import store from '../store';
-import { addRemoteStream, setDevices, removeRemoteStream } from '../store/callSlice';
+import {
+  addRemoteStream,
+  setDevices,
+  removeRemoteStream,
+} from '../store/callSlice';
 import Peer from 'simple-peer';
 import { getSocket, signalPeerData } from './socket';
+import { setAlert } from '../store/alertSlice';
 
-const getConfig = () => {
-  const turnIceServers = null;
+const METERED_USERNAME = import.meta.env.VITE_METERED_USERNAME;
+const METERED_CREDENTIAL = import.meta.env.VITE_METERED_CREDENTIAL;
 
-  if (turnIceServers) {
-    // TODO use TURN server credentials (this step is needed if we want to be able to connect to users behind NAT)
-    // Note: use Metered (metered.ca) for TURN server
-  } else {
-    console.warn('Using only STUN servers');
-    return {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-      ],
-    }
-  }
+const getConfig = async () => {
+  const iceServers = [
+    { urls: 'stun:stun.relay.metered.ca:80' },
+  ];
+
+  const meteredURLs = [
+    'turn:standard.relay.metered.ca:80',
+    'turn:standard.relay.metered.ca:80?transport=tcp',
+    'turn:standard.relay.metered.ca:443',
+    'turns:standard.relay.metered.ca:443?transport=tcp',
+  ];
+
+  meteredURLs.forEach((url) => {
+    iceServers.push({
+      urls: url,
+      credential: METERED_CREDENTIAL,
+      username: METERED_USERNAME,
+    });
+  });
+
+  return {
+    iceServers,
+  };
 };
 
 const onlyAudioContraints = {
@@ -40,19 +57,85 @@ export const setLocalStream = (stream) => {
   localStream = stream;
 };
 
-export const getLocalStreamPreview = (onlyAudio = false, callback) => {
-  const constraints = onlyAudio ? onlyAudioContraints : defaultContraints;
+// export const getLocalStreamPreview = (onlyAudio = false, callback) => {
+//   const constraints = onlyAudio ? onlyAudioContraints : defaultContraints;
 
-  navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then((stream) => {
-      getDevices();
-      setLocalStream(stream);
-      callback();
-    })
-    .catch((error) => {
-      console.error('Cannot get local stream preview: ', error);
-    });
+//   navigator.mediaDevices
+//     .getUserMedia(constraints)
+//     .then((stream) => {
+//       getDevices();
+//       setLocalStream(stream);
+//       callback();
+//     })
+//     .catch((error) => {
+//       console.error('Cannot get local stream preview: ', error);
+//     });
+// };
+
+export const getLocalStreamPreview = async (onlyAudio = false, callback) => {
+  try {
+    // First, check what devices are available
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const hasAudioInput = devices.some(device => device.kind === 'audioinput');
+    const hasVideoInput = devices.some(device => device.kind === 'videoinput');
+    getDevices();
+
+    // If user doesn't have a microphone, show error and return
+    if (!hasAudioInput) {
+      store.dispatch(setAlert({
+        open: true,
+        message: 'Must have a microphone in order to join a Voice Channel',
+        severity: 'error'
+      }));
+      return;
+    }
+
+    // Determine constraints based on available devices
+    let constraints = {
+      audio: hasAudioInput,
+      video: hasVideoInput,
+    };
+
+    // Try to get the stream with determined constraints
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    // Update devices list
+    getDevices();
+    setLocalStream(stream);
+
+    // Execute callback function to enter voice channel
+    callback();
+
+  } catch (error) {
+    console.error('Error getting local stream preview:', error);
+    
+    // Handle specific error cases
+    if (error.name === 'NotAllowedError') {
+      store.dispatch(setAlert({
+        open: true,
+        message: 'Please allow microphone and camera permissions to join the call',
+        severity: 'error'
+      }));
+    } else if (error.name === 'NotFoundError') {
+      store.dispatch(setAlert({
+        open: true,
+        message: 'Required media devices not found. Please check your microphone and camera.',
+        severity: 'error'
+      }));
+    } else if (error.name === 'NotReadableError') {
+      store.dispatch(setAlert({
+        open: true,
+        message: 'Media devices are already in use by another application',
+        severity: 'error'
+      }));
+    } else {
+      store.dispatch(setAlert({
+        open: true,
+        message: 'Failed to access media devices. Please check your permissions and try again.',
+        severity: 'error'
+      }));
+    }
+  }
 };
 
 const getDevices = () => {
@@ -102,7 +185,7 @@ export const setMicrophoneState = (isMicrophoneOn) => {
     return;
   }
 
-  audioTracks.forEach(track => {
+  audioTracks.forEach((track) => {
     track.enabled = isMicrophoneOn;
   });
 };
@@ -122,7 +205,7 @@ export const setCameraState = (isCameraOn) => {
     return;
   }
 
-  videoTracks.forEach(track => {
+  videoTracks.forEach((track) => {
     track.enabled = isCameraOn;
   });
 };
@@ -135,12 +218,12 @@ export const stopLocalStream = async () => {
     try {
       // Stop all tracks
       const tracks = localStream.getTracks();
-      tracks.forEach(track => {
+      tracks.forEach((track) => {
         track.stop();
       });
 
       // Remove all tracks from the stream
-      tracks.forEach(track => {
+      tracks.forEach((track) => {
         localStream.removeTrack(track);
       });
 
@@ -151,18 +234,17 @@ export const stopLocalStream = async () => {
       try {
         const dummyStream = await navigator.mediaDevices.getUserMedia({
           audio: true,
-          video: true
+          video: true,
         });
 
         // Immediately stop the dummy stream
-        dummyStream.getTracks().forEach(track => {
+        dummyStream.getTracks().forEach((track) => {
           track.stop();
         });
       } catch (dummyError) {
         // Ignore errors from dummy stream request
         console.log('Dummy stream cleanup completed');
       }
-
     } catch (error) {
       console.error('Error stopping local stream:', error);
     }
@@ -179,7 +261,7 @@ export const prepareNewWebRTCConnection = (userSocketId, isInitiator) => {
   peerConnections[userSocketId].on('signal', (data) => {
     const signalData = {
       signal: data,
-      userSocketId
+      userSocketId,
     };
 
     signalPeerData(signalData);
@@ -200,7 +282,7 @@ export const handleSignalPeerData = (data) => {
 };
 
 export const closeAllWebRTCConnections = () => {
-  Object.keys(peerConnections).forEach(userSocketId => {
+  Object.keys(peerConnections).forEach((userSocketId) => {
     peerConnections[userSocketId].destroy();
   });
   peerConnections = {};

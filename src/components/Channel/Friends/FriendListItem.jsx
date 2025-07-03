@@ -32,10 +32,19 @@ const FriendListItem = ({
   actions,
   onListItemClick = null,
   disabled,
+  showBadge = false,
+  isOnline = false,
 }) => {
   return (
     <StyledListItem onClick={onListItemClick} disableRipple disabled={disabled}>
-      <AppAvatar _id={friend._id} name={friend.username} size={40} showName />
+      <AppAvatar
+        _id={friend._id}
+        name={friend.username}
+        size={40}
+        showName
+        showBadge={showBadge}
+        isOnline={isOnline}
+      />
       <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
         {actions}
       </Box>

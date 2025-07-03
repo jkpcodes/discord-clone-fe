@@ -6,7 +6,8 @@ import { useDispatch } from 'react-redux';
 import { getServers } from '../../services/server';
 import { useQuery } from '@tanstack/react-query';
 import { setServers } from '../../store/serverSlice';
-
+import { getDirectMessages } from '../../services/friends';
+import { setDirectMessages } from '../../store/friendSlice';
 
 const LoadingContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -28,6 +29,12 @@ const ProtectedRoute = ({ children }) => {
     enabled: isLoggedIn,
   });
 
+  const directMessagesQuery = useQuery({
+    queryKey: ['directMessages'],
+    queryFn: getDirectMessages,
+    enabled: isLoggedIn,
+  });
+
   useEffect(() => {
     if (!isLoggedIn) {
       navigate('/login', { replace: true, state: null });
@@ -40,6 +47,12 @@ const ProtectedRoute = ({ children }) => {
       dispatch(setServers(serversQuery.data));
     }
   }, [serversQuery.isSuccess, serversQuery.data, dispatch]);
+
+  useEffect(() => {
+    if (directMessagesQuery.isSuccess) {
+      dispatch(setDirectMessages(directMessagesQuery.data));
+    }
+  }, [directMessagesQuery.isSuccess, directMessagesQuery.data, dispatch]);
 
   // Don't render anything until we've checked authentication
   if (!isLoggedIn || !localStorage.getItem('userDetails')) {

@@ -1,5 +1,6 @@
-import { Avatar, Typography, Box } from '@mui/material';
+import { Avatar, Typography, Box, Badge } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { Fragment } from 'react';
 
 const AvatarContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -49,15 +50,38 @@ const AppAvatar = ({
   color = null,
   icon = null,
   showName = false,
+  isOnline = false,
+  showBadge = false,
 }) => {
   // Add fallback for when name is undefined
   const avatarContent = icon || (name ? name[0].toUpperCase() : '?');
 
+  const avatarElement = (
+    <Avatar {...stringAvatar(_id, variant, size, cursor, color)}>
+      {avatarContent}
+    </Avatar>
+  );
+
   return (
     <AvatarContainer>
-      <Avatar {...stringAvatar(_id, variant, size, cursor, color)}>
-        {avatarContent}
-      </Avatar>
+      {showBadge && (
+        <Badge
+          color='success'
+          variant='dot'
+          overlap='circular'
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          sx={{
+            '& .MuiBadge-badge': {
+              width: 10,
+              height: 10,
+              backgroundColor: isOnline ? 'green' : 'gray',
+            },
+          }}
+        >
+          {avatarElement}
+        </Badge>
+      )}
+      {!showBadge && avatarElement}
       {showName && (
         <Typography variant='body1' sx={{ fontSize: 18 }}>
           {name}
