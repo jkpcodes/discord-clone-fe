@@ -10,6 +10,7 @@ const initialState = {
   sentInvitations: [],
   onlineFriendsId: [],
   onlineFriends: [],
+  directMessages: [], // [ { _id, friend, lastMessage } ]
 };
 
 const friendSlice = createSlice({
@@ -51,6 +52,12 @@ const friendSlice = createSlice({
       state.sentInvitations = [];
       state.onlineFriendsId = [];
       state.onlineFriends = [];
+      state.directMessages = [];
+    },
+    setDirectMessages: (state, action) => {
+      state.directMessages = action.payload;
+    },
+    updateDirectMessage: (state, action) => {
     },
   },
 });
@@ -63,5 +70,7 @@ export const {
   addOnlineFriendId,
   removeOnlineFriend,
   resetFriendState,
+  setDirectMessages,
+  updateDirectMessage,
 } = friendSlice.actions;
 export default friendSlice.reducer;

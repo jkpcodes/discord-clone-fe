@@ -1,4 +1,4 @@
-import { List, Box, Typography } from '@mui/material';
+import { List, Box, Typography, CircularProgress } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ChatMessage from './ChatMessage';
 import ChatDateSeparator from './ChatDateSeparator';
@@ -51,7 +51,7 @@ const formatDate = (date, format) => {
   return format.replace(/mm|dd|yy|yyyy|hh|min/g, (match) => map[match]);
 };
 
-const ChatMessages = ({ chatKey, onLoadMore }) => {
+const ChatMessages = ({ chatKey, onLoadMore, isLoadingMore }) => {
   const chatData = useSelector((state) => state.chat.directChat[chatKey]);
   const lastMessageRef = useRef(null);
   // const listRef = useRef(null)
@@ -106,6 +106,11 @@ const ChatMessages = ({ chatKey, onLoadMore }) => {
               ? 'No chat history'
               : 'This is the start of the conversation.'}
           </Typography>
+        </Box>
+      )}
+      {isLoadingMore && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'row', alignItems: 'center', flexGrow: 0 }}>
+          <CircularProgress sx={{ marginRight: 1 }} size={20} /> Loading more messages...
         </Box>
       )}
       {messages.map((message, index) => {

@@ -1,7 +1,8 @@
-import { Drawer, List, Typography } from '@mui/material';
+import { Drawer, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useLocation } from 'react-router-dom';
 import VoiceChannel from './VoiceChannel';
+import DirectMessagesList from './DirectMessagesList';
 
 const StyledDrawer = styled(Drawer)(({ theme }) => ({
   width: 248,
@@ -37,9 +38,7 @@ const ChannelSidebar = () => {
       {!isServerPage && (
         <>
           <Typography variant="h6">Direct Messages</Typography>
-          <List>
-            
-          </List>
+          <DirectMessagesList />
         </>
       )}
 

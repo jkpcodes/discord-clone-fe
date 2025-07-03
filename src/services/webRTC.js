@@ -78,6 +78,7 @@ export const getLocalStreamPreview = async (onlyAudio = false, callback) => {
     const devices = await navigator.mediaDevices.enumerateDevices();
     const hasAudioInput = devices.some(device => device.kind === 'audioinput');
     const hasVideoInput = devices.some(device => device.kind === 'videoinput');
+    getDevices();
 
     // If user doesn't have a microphone, show error and return
     if (!hasAudioInput) {

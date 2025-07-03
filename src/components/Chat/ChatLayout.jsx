@@ -1,12 +1,12 @@
 import { AppBar, Box, Paper, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { getDirectMessages } from '../../services/messages';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 import { useSelector, useDispatch } from 'react-redux';
-import { setFriendChat, generateChatKey, loadMoreMessages } from '../../store/chatSlice';
+import { setFriendChat, generateChatKey } from '../../store/chatSlice';
 import { useState, useEffect } from 'react';
 
 const ChatContainer = styled(Box)(({ theme }) => ({
@@ -47,44 +47,45 @@ const ChatLayout = ({ enableHeader = true, headerContent = null }) => {
   const chatKey = generateChatKey(userId, id);
   const [skip, setSkip] = useState(0);
 
-  console.log('skip: ', skip);
-
-  // Load initial conversationData
   const {
-    data: conversationData,
-    isLoading,
-    isSuccess,
-    error,
-    refetch,
-  } = useQuery({
+    data: infiniteData,
+    error: infiniteError,
+    fetchNextPage,
+    hasNextPage,
+    isFetching,
+    isFetchingNextPage,
+    status,
+  } = useInfiniteQuery({
     queryKey: ['direct', id],
-    queryFn: () => getDirectMessages({ friendId: id, skip, take: TAKE_AMOUNT }),
+    queryFn: ({ pageParam = 0 }) => getDirectMessages({ friendId: id, skip: pageParam, take: TAKE_AMOUNT }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.pagination.hasMore) {
+        return lastPage.pagination.skip;
+      }
+      return undefined;
+    },
   });
 
-  // Move state updates to useEffect
   useEffect(() => {
-    if (isSuccess && conversationData) {
-      if (skip === 0) {
-        dispatch(setFriendChat({
-          friendId: id,
-          userId,
-          _id: conversationData._id,
-          messages: conversationData.messages,
-          participants: conversationData.participants,
-          pagination: conversationData.pagination,
-        }));
-      } else {
-        dispatch(loadMoreMessages({
-          participantIds: [userId, id],
-          messages: conversationData.messages,
-          pagination: conversationData.pagination,
-        }));
-      }
-      setSkip(conversationData.messages.length);
+    if (status === 'success' && infiniteData?.pages?.length > 0) {
+      const conversationId = infiniteData.pages[0]._id;
+      const participants = infiniteData.pages[0].participants;
+      const messages = infiniteData.pages.flatMap((page) => page.messages);
+      const pagination = infiniteData.pages[infiniteData.pages.length - 1].pagination;
+      setSkip(pagination.skip);
+      dispatch(setFriendChat({
+        friendId: id,
+        userId,
+        _id: conversationId,
+        messages,
+        participants,
+        pagination,
+      }));
     }
-  }, [isSuccess, conversationData, id, userId, dispatch]);
+  }, [status, infiniteData, dispatch, id, userId]);
 
-  if (isLoading) {
+  if (isFetching && !isFetchingNextPage) {
     return (
       <Box
         sx={{
@@ -111,7 +112,17 @@ const ChatLayout = ({ enableHeader = true, headerContent = null }) => {
         </StyledAppBar>
       )}
       <ChatContentContainer elevation={4}>
-        <ChatMessages chatKey={chatKey} onLoadMore={refetch} isFirstLoad={skip === 0} />
+        <ChatMessages
+          chatKey={chatKey}
+          onLoadMore={() => {
+            if (!isFetchingNextPage && hasNextPage) {
+              console.log('refetching via useInfiniteQuery');
+              fetchNextPage();
+            }
+          }}
+          isFirstLoad={skip === 0}
+          isLoadingMore={isFetchingNextPage}
+        />
         <ChatInput friendId={id} />
       </ChatContentContainer>
     </ChatContainer>
