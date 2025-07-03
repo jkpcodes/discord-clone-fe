@@ -26,4 +26,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['simple-peer'],
   },
+  server: {
+    historyApiFallback: true,
+  },
 })
